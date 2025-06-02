@@ -72,7 +72,7 @@
 
         .main-grid {
             display: grid;
-            grid-template-columns: 1fr 350px;
+            grid-template-columns: 1fr;
             gap: 25px;
             margin-top: 20px;
         }
@@ -161,6 +161,7 @@
             position: sticky;
             top: 20px;
             height: fit-content;
+            min-height: 600px;
         }
 
         .offerlist-header {
@@ -210,29 +211,123 @@
             margin-bottom: 4px;
         }
 
-        .offer-item {
-            background: linear-gradient(135deg, #fef3c7 0%, #fbbf24 100%);
-            padding: 15px 20px;
-            border-radius: 12px;
-            margin-bottom: 12px;
-            border-left: 4px solid #f59e0b;
-            animation: slideInRight 0.5s ease-out;
-            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2);
-            transition: transform 0.2s ease;
+        .offers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
         }
 
-        .offer-item:hover {
-            transform: translateX(5px);
+        .offer-card {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            overflow: hidden;
+            animation: slideInUp 0.5s ease-out;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
         }
 
-        @keyframes slideInRight {
+        .offer-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .offer-header {
+            background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+            color: white;
+            padding: 12px 15px;
+            font-weight: 600;
+            font-size: 0.9em;
+            text-align: center;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+
+        .offer-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            background: white;
+        }
+
+        .offer-btn {
+            padding: 12px 8px;
+            border: none;
+            background: #f8f9fa;
+            color: #495057;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85em;
+            transition: all 0.2s ease;
+            border-right: 1px solid #dee2e6;
+        }
+
+        .offer-btn:last-child {
+            border-right: none;
+        }
+
+        .offer-btn:hover {
+            background: #e9ecef;
+        }
+
+        .offer-btn.info {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .offer-btn.info:hover {
+            background: #bbdefb;
+        }
+
+        .offer-btn.ok {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+
+        .offer-btn.ok:hover {
+            background: #c8e6c9;
+        }
+
+        .offer-btn.cancel {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .offer-btn.cancel:hover {
+            background: #ffcdd2;
+        }
+
+        .offer-btn.help {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+
+        .offer-btn.help:hover {
+            background: #ffe0b2;
+        }
+
+        .offers-counter {
+            text-align: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 8px;
+            color: #1e40af;
+            font-weight: 600;
+        }
+
+        @keyframes slideInUp {
             from {
                 opacity: 0;
-                transform: translateX(20px);
+                transform: translateY(20px);
             }
             to {
                 opacity: 1;
-                transform: translateX(0);
+                transform: translateY(0);
             }
         }
 
@@ -339,14 +434,13 @@
             border: 1px solid rgba(255,255,255,0.2);
         }
 
-        @media (max-width: 1024px) {
-            .main-grid {
+        @media (max-width: 768px) {
+            .offers-grid {
                 grid-template-columns: 1fr;
             }
             
             .offerlist-panel {
                 position: static;
-                order: -1;
             }
         }
 
@@ -400,20 +494,10 @@
         </div>
 
         <div class="main-grid">
-            <div class="left-panel">
-                <div class="data-container" id="dataContainer">
-                    <div class="empty-state">
-                        <div class="empty-state-icon">📡</div>
-                        <h3>Waiting for Bloomreach data...</h3>
-                        <p>Send webhook requests from <strong>Bloomreach Engagement</strong></p>
-                    </div>
-                </div>
-            </div>
-
             <div class="offerlist-panel">
                 <div class="offerlist-header">
                     <div class="offerlist-icon">🎁</div>
-                    <div class="offerlist-title">Latest Offers</div>
+                    <div class="offerlist-title">Campaign Offers</div>
                 </div>
                 
                 <div id="customerInfo" class="customer-info" style="display: none;">
@@ -421,11 +505,25 @@
                     <div id="customerDetails"></div>
                 </div>
 
+                <div id="offersCounter" class="offers-counter" style="display: none;">
+                    <span id="offerCount">0</span> Offers Available
+                </div>
+
                 <div id="offersList">
                     <div class="no-offers">
                         <div class="no-offers-icon">🎯</div>
                         <p><strong>No offers yet</strong></p>
                         <p>Waiting for Bloomreach webhook with offerlist data</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="left-panel">
+                <div class="data-container" id="dataContainer">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📡</div>
+                        <h3>Waiting for Bloomreach data...</h3>
+                        <p>Send webhook requests from <strong>Bloomreach Engagement</strong></p>
                     </div>
                 </div>
             </div>
@@ -519,6 +617,8 @@
 
         function renderOffersList() {
             const offersContainer = document.getElementById('offersList');
+            const offersCounter = document.getElementById('offersCounter');
+            const offerCount = document.getElementById('offerCount');
             
             if (latestOffers.length === 0) {
                 offersContainer.innerHTML = `
@@ -528,14 +628,61 @@
                         <p>Waiting for Bloomreach webhook with offerlist data</p>
                     </div>
                 `;
+                offersCounter.style.display = 'none';
                 return;
             }
 
-            offersContainer.innerHTML = latestOffers.map(offer => `
-                <div class="offer-item">
-                    <div class="offer-text">✨ ${offer}</div>
+            // Show counter
+            offersCounter.style.display = 'block';
+            offerCount.textContent = latestOffers.length;
+
+            // Create grid of offer cards
+            offersContainer.innerHTML = `
+                <div class="offers-grid">
+                    ${latestOffers.map((offer, index) => `
+                        <div class="offer-card">
+                            <div class="offer-header">${offer}</div>
+                            <div class="offer-controls">
+                                <button class="offer-btn info" onclick="handleOfferAction('${offer}', 'info')">Info</button>
+                                <button class="offer-btn ok" onclick="handleOfferAction('${offer}', 'ok')">OK</button>
+                                <button class="offer-btn cancel" onclick="handleOfferAction('${offer}', 'cancel')">✕</button>
+                                <button class="offer-btn help" onclick="handleOfferAction('${offer}', 'help')">?</button>
+                            </div>
+                        </div>
+                    `).join('')}
                 </div>
-            `).join('');
+            `;
+        }
+
+        function handleOfferAction(offer, action) {
+            console.log(`Action "${action}" clicked for offer: "${offer}"`);
+            
+            // Add visual feedback
+            const button = event.target;
+            const originalText = button.textContent;
+            button.textContent = '✓';
+            button.style.transform = 'scale(0.95)';
+            
+            setTimeout(() => {
+                button.textContent = originalText;
+                button.style.transform = 'scale(1)';
+            }, 200);
+            
+            // Here you can add actual functionality for each action
+            switch(action) {
+                case 'info':
+                    // Show offer details
+                    break;
+                case 'ok':
+                    // Accept offer
+                    break;
+                case 'cancel':
+                    // Reject offer
+                    break;
+                case 'help':
+                    // Show help
+                    break;
+            }
         }
 
         function updateStats() {
