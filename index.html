@@ -574,19 +574,29 @@
             }
         }
 
+        // Function to format attribute names (e.g., "last_name" -> "Last Name")
+        function formatAttributeName(key) {
+            return key
+                .split('_')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                .join(' ');
+        }
+
         function updateOffersList(data) {
             try {
                 const command = data.body.commands[0];
                 if (command && command.data && command.data.properties) {
                     const properties = command.data.properties;
                     
-                    // Update customer info
-                    latestCustomer = {
-                        firstName: properties.first_name,
-                        lastName: properties.last_name,
-                        email: properties.email,
-                        phone: properties.phone
-                    };
+                    // Store all customer properties dynamically
+                    latestCustomer = {};
+                    
+                    // Extract all properties except offerlist
+                    Object.keys(properties).forEach(key => {
+                        if (key !== 'offerlist') {
+                            latestCustomer[key] = properties[key];
+                        }
+                    });
 
                     // Update offers
                     latestOffers = properties.offerlist || [];
@@ -603,13 +613,20 @@
             const customerInfoDiv = document.getElementById('customerInfo');
             const customerDetailsDiv = document.getElementById('customerDetails');
             
-            if (latestCustomer) {
+            if (latestCustomer && Object.keys(latestCustomer).length > 0) {
                 customerInfoDiv.style.display = 'block';
-                customerDetailsDiv.innerHTML = `
-                    <div class="customer-detail"><strong>Name:</strong> ${latestCustomer.firstName} ${latestCustomer.lastName}</div>
-                    <div class="customer-detail"><strong>Email:</strong> ${latestCustomer.email}</div>
-                    <div class="customer-detail"><strong>Phone:</strong> ${latestCustomer.phone}</div>
-                `;
+                
+                // Generate HTML for all customer attributes
+                const customerDetailsHTML = Object.keys(latestCustomer)
+                    .filter(key => latestCustomer[key] !== null && latestCustomer[key] !== undefined && latestCustomer[key] !== '')
+                    .map(key => {
+                        const formattedLabel = formatAttributeName(key);
+                        const value = latestCustomer[key];
+                        return `<div class="customer-detail"><strong>${formattedLabel}:</strong> ${value}</div>`;
+                    })
+                    .join('');
+                
+                customerDetailsDiv.innerHTML = customerDetailsHTML;
             } else {
                 customerInfoDiv.style.display = 'none';
             }
